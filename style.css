@@ -1,0 +1,211 @@
+body {
+  margin: 0;
+  font-family: 'Times New Roman', serif;
+  background-color: #ffffff;
+  color: #001f4d;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #001f4d;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+nav {
+  background-color: #001f4d;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1em;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  flex: 1;
+  padding: 40px;
+  text-align: center;
+}
+
+/* футер */
+footer {
+  background-color: #001f4d;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.9em;
+}
+
+/* ============= стили для index.html ============= */
+
+.index-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.index-container::before,
+.index-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background-color: #001f4d;
+  z-index: -1;
+}
+
+.index-container::before {
+  top: 0;
+  transform: skewY(-4deg);
+}
+
+.index-container::after {
+  bottom: 0;
+  transform: skewY(4deg);
+}
+
+.index-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 4em;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 0;
+}
+
+.index-subtitle {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1.5em;
+  color: black;
+  margin-top: 5px;
+  margin-bottom: 40px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+  width: 250px;
+  padding: 10px;
+  margin: 5px 0;
+  border: 2px solid #001f4d;
+  border-radius: 5px;
+  font-size: 1em;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.login-form input[type="text"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.login-form button {
+  background-color: #001f4d;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.login-form button:hover {
+  background-color: #001533;
+}
+
+/* каталог карточки */
+.catalog-item {
+  border: 1px solid #001f4d;
+  display: inline-block;
+  width: 200px;
+  margin: 10px;
+  padding: 15px;
+}
+
+.catalog-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+
+.catalog-item h3 {
+  color: #001f4d;
+}
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #001f4d;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+.button:hover {
+  background-color: #003366;
+}
+
+
+.order-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.order-card {
+  border: 1px solid #001f4d;
+  margin: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  width: 300px;
+  text-align: left;
+}
+
+.order-card img {
+  width: 100px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.order-card-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.order-card-name {
+  font-weight: bold;
+}
+
+.order-card-price {
+  font-size: 0.9em;
+}

@@ -54,8 +54,6 @@ footer {
   font-size: 0.9em;
 }
 
-/* ============= стили для index.html ============= */
-
 .index-container {
   display: flex;
   flex-direction: column;
@@ -63,7 +61,7 @@ footer {
   align-items: center;
   text-align: center;
   position: relative;
-  min-height: 100vh;
+  flex: 1;
   overflow: hidden;
 }
 
@@ -105,6 +103,12 @@ footer {
   margin-bottom: 40px;
 }
 
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .login-form input[type="text"],
 .login-form input[type="password"] {
   width: 250px;
@@ -141,24 +145,41 @@ footer {
   background-color: #001533;
 }
 
-/* каталог карточки */
+.catalog-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
 .catalog-item {
   border: 1px solid #001f4d;
-  display: inline-block;
   width: 200px;
-  margin: 10px;
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .catalog-item img {
   width: 100%;
+  max-width: 150px;
   height: auto;
   border-radius: 50%;
+  margin-bottom: 10px;
 }
 
 .catalog-item h3 {
   color: #001f4d;
+  margin-top: 0;
+  margin-bottom: 5px;
 }
+
+.catalog-item p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
 
 .button {
   display: inline-block;
@@ -173,33 +194,38 @@ footer {
   background-color: #003366;
 }
 
-
 .order-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 600px;
+  margin: 20px auto;
 }
 
 .order-card {
   border: 1px solid #001f4d;
-  margin: 10px;
+  margin: 10px 0;
   padding: 10px;
   display: flex;
   align-items: center;
-  width: 300px;
+  width: 100%;
+  max-width: 350px;
   text-align: left;
 }
 
 .order-card img {
-  width: 100px;
-  height: auto;
-  margin-right: 10px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 15px;
 }
 
 .order-card-text {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 .order-card-name {
@@ -208,4 +234,5 @@ footer {
 
 .order-card-price {
   font-size: 0.9em;
+  color: #333;
 }

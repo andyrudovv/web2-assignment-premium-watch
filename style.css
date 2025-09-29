@@ -4,10 +4,8 @@ body {
     background-color: #ffffff;
     color: #001f4d;
     min-height: 100vh;
-    
-    /* TASK 3, Part 1: Page Layout with Grid Areas - Apply to body */
+
     display: grid;
-    /* Define 4 rows: Header (auto), Nav (auto), Main (takes remaining space), Footer (auto) */
     grid-template-rows: auto auto 1fr auto; 
     grid-template-areas:
         "header-area"
@@ -20,42 +18,36 @@ header {
     background-color: #001f4d;
     color: white;
     padding: 20px;
-    
-    /* Grid Area Assignment */
+
     grid-area: header-area; 
-    
-    /* TASK 1, Part 1: Flexbox Navigation - Header/Logo */
+
     display: flex;
-    justify-content: flex-start; /* Logo to the left */
-    align-items: center; /* Vertically center logo */
+    justify-content: flex-start;
+    align-items: center;
 }
 
 header h1 {
     margin: 0;
     font-size: 3em;
     font-weight: bold;
-    /* Ensure h1 is on the left */
 }
 
 nav {
     background-color: #001f4d;
-    padding: 10px 20px; /* Adjusted padding */
-    
-    /* Grid Area Assignment */
+    padding: 10px 20px;
+
     grid-area: nav-area;
 
-    /* TASK 1, Part 1: Flexbox Navigation - Links */
     display: flex;
-    justify-content: flex-end; /* Push links to the right */
-    align-items: center; /* Vertically center links */
-    gap: 15px; /* Apply spacing between links using Flexbox 'gap' */
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
 }
 
 nav a {
     color: white;
     text-decoration: none;
     font-size: 1.1em;
-    /* Removed old margin for flex gap */
 }
 
 nav a:hover {
@@ -66,11 +58,9 @@ main {
     padding: 40px;
     text-align: center;
     
-    /* Grid Area Assignment */
     grid-area: main-area;
 }
 
-/* футер */
 footer {
     background-color: #001f4d;
     color: white;
@@ -78,12 +68,11 @@ footer {
     padding: 10px 0;
     font-size: 0.9em;
     
-    /* Grid Area Assignment */
     grid-area: footer-area;
 }
 
-/* --- Index Page (Login) --- */
 .index-container {
+    height: 95vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -92,15 +81,23 @@ footer {
     position: relative;
     flex: 1;
     overflow: hidden;
+
+    background: url('imgs/back1.jpg'),
+                linear-gradient(45deg, #ADD8E6 25%, transparent 25%, transparent 75%, #ADD8E6 75%),
+                linear-gradient(45deg, #ADD8E6 25%, transparent 25%, transparent 75%, #ADD8E6 75%),
+                #FFFFFF;
+
+    background-size: cover, 60px 60px;
+    background-position: center, 0 0, 30px 30px;
+    background-repeat: no-repeat, repeat, repeat;
 }
 
-/* ... (rest of index-container styles unchanged) ... */
 
 .index-title {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 4em;
     font-weight: bold;
-    color: black;
+    color: white;
     margin-bottom: 0;
 }
 
@@ -108,7 +105,7 @@ footer {
     font-family: Georgia, 'Times New Roman', serif;
     font-style: italic;
     font-size: 1.5em;
-    color: black;
+    color: white;
     margin-top: 5px;
     margin-bottom: 40px;
 }
@@ -155,12 +152,10 @@ footer {
     background-color: #001533;
 }
 
-/* --- Catalog Grid / Image Gallery --- */
-/* TASK 4: Image Gallery using Grid */
 .catalog-grid {
-    display: grid; /* Make it a grid container */
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
-    gap: 20px; /* Consistent spacing/gaps */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
     max-width: 1200px;
     margin: 20px auto;
 }
@@ -168,7 +163,7 @@ footer {
 .catalog-item {
     border: 1px solid #001f4d;
     padding: 15px;
-    /* Use Flexbox for internal alignment of content */
+
     display: flex; 
     flex-direction: column;
     align-items: center;
@@ -176,23 +171,15 @@ footer {
 
     border-radius: 8px;
     
-    /* Ensure equal height by allowing Grid to stretch it (default) */
-    
-    /* TASK 2, Part 5: Simple Hover Effect (Shadow/Lift) */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative; /* For the optional caption overlay */
+    position: relative;
     overflow: hidden; 
 }
 
 .catalog-item:hover {
-    transform: translateY(-5px); /* Lift effect */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-}
-
-/* Optional: Caption Overlay for Task 4, requires adding .caption to HTML */
-.catalog-item:hover .caption {
-    transform: translateY(0); /* Show caption on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .catalog-item img {
@@ -215,21 +202,19 @@ footer {
     margin-bottom: 10px;
 }
 
-/* Caption style (if implemented in HTML) */
 .caption {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: rgba(0, 31, 77, 0.85); /* Dark background with opacity */
+    background-color: rgba(0, 31, 77, 0.85);
     color: white;
     padding: 10px;
-    transform: translateY(100%); /* Hide caption initially */
+    transform: translateY(100%);
     transition: transform 0.3s ease;
     text-align: center;
 }
 
-/* --- General Button Style --- */
 .button {
     display: inline-block;
     padding: 8px 16px;
@@ -237,22 +222,20 @@ footer {
     color: #fff;
     text-decoration: none;
     border-radius: 4px;
-    margin-top: auto; /* Push button to the bottom of the card */
+    margin-top: auto;
 }
 
 .button:hover {
     background-color: #003366;
 }
 
-/* --- Order/Cart Card Row --- */
-/* TASK 2: Card Row using Flexbox */
 .order-container {
-    display: flex; /* Make it a flex container */
-    flex-direction: row; /* Cards in a row */
+    display: flex;
+    flex-direction: row;
     justify-content: center;
-    gap: 20px; /* Consistent gaps between cards */
+    gap: 20px;
     flex-wrap: wrap;
-    max-width: 100%; /* Remove size constraint to allow row layout */
+    max-width: 100%;
     margin: 20px auto;
 }
 
@@ -261,21 +244,18 @@ footer {
     padding: 10px;
     display: flex;
     align-items: center;
-    width: 300px; /* Fixed width for better row layout */
+    width: 300px;
     max-width: none;
     text-align: left;
 
     border-radius: 8px;
     
-    /* Ensure equal height by flex-stretch (default) */
-
-    /* TASK 2, Part 5: Simple Hover Effect (Scale) */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .order-card:hover {
-    transform: scale(1.03); /* Scale up effect */
+    transform: scale(1.03);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -302,26 +282,3 @@ footer {
     font-size: 0.9em;
     color: #333;
 }
-
-/* --- Task 3: Sidebar/Main Layout (Conceptual) --- */
-/* You would need to add a wrapper in HTML to implement this on a specific page */
-/* For example, for the main content on catalog.html: */
-/*
-.page-grid-layout {
-    display: grid;
-    grid-template-columns: 1fr 3fr; 
-    grid-template-areas: "sidebar content";
-    gap: 20px;
-    text-align: left;
-}
-
-.sidebar {
-    grid-area: sidebar;
-    background-color: #f4f4f4;
-    padding: 15px;
-}
-
-.main-content {
-    grid-area: content;
-}
-*/

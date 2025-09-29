@@ -1,238 +1,327 @@
 body {
-  margin: 0;
-  font-family: 'Times New Roman', serif;
-  background-color: #ffffff;
-  color: #001f4d;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+    margin: 0;
+    font-family: 'Times New Roman', serif;
+    background-color: #ffffff;
+    color: #001f4d;
+    min-height: 100vh;
+    
+    /* TASK 3, Part 1: Page Layout with Grid Areas - Apply to body */
+    display: grid;
+    /* Define 4 rows: Header (auto), Nav (auto), Main (takes remaining space), Footer (auto) */
+    grid-template-rows: auto auto 1fr auto; 
+    grid-template-areas:
+        "header-area"
+        "nav-area"
+        "main-area"
+        "footer-area";
 }
 
 header {
-  background-color: #001f4d;
-  color: white;
-  padding: 20px;
-  text-align: center;
+    background-color: #001f4d;
+    color: white;
+    padding: 20px;
+    
+    /* Grid Area Assignment */
+    grid-area: header-area; 
+    
+    /* TASK 1, Part 1: Flexbox Navigation - Header/Logo */
+    display: flex;
+    justify-content: flex-start; /* Logo to the left */
+    align-items: center; /* Vertically center logo */
 }
 
 header h1 {
-  margin: 0;
-  font-size: 3em;
-  font-weight: bold;
+    margin: 0;
+    font-size: 3em;
+    font-weight: bold;
+    /* Ensure h1 is on the left */
 }
 
 nav {
-  background-color: #001f4d;
-  display: flex;
-  justify-content: center;
-  padding: 10px 0;
+    background-color: #001f4d;
+    padding: 10px 20px; /* Adjusted padding */
+    
+    /* Grid Area Assignment */
+    grid-area: nav-area;
+
+    /* TASK 1, Part 1: Flexbox Navigation - Links */
+    display: flex;
+    justify-content: flex-end; /* Push links to the right */
+    align-items: center; /* Vertically center links */
+    gap: 15px; /* Apply spacing between links using Flexbox 'gap' */
 }
 
 nav a {
-  color: white;
-  text-decoration: none;
-  margin: 0 15px;
-  font-size: 1.1em;
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    /* Removed old margin for flex gap */
 }
 
 nav a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 main {
-  flex: 1;
-  padding: 40px;
-  text-align: center;
+    padding: 40px;
+    text-align: center;
+    
+    /* Grid Area Assignment */
+    grid-area: main-area;
 }
 
 /* футер */
 footer {
-  background-color: #001f4d;
-  color: white;
-  text-align: center;
-  padding: 10px 0;
-  font-size: 0.9em;
+    background-color: #001f4d;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.9em;
+    
+    /* Grid Area Assignment */
+    grid-area: footer-area;
 }
 
+/* --- Index Page (Login) --- */
 .index-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  position: relative;
-  flex: 1;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    flex: 1;
+    overflow: hidden;
 }
 
-.index-container::before,
-.index-container::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 200px;
-  background-color: #001f4d;
-  z-index: -1;
-}
-
-.index-container::before {
-  top: 0;
-  transform: skewY(-4deg);
-}
-
-.index-container::after {
-  bottom: 0;
-  transform: skewY(4deg);
-}
+/* ... (rest of index-container styles unchanged) ... */
 
 .index-title {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 4em;
-  font-weight: bold;
-  color: black;
-  margin-bottom: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 4em;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 0;
 }
 
 .index-subtitle {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 1.5em;
-  color: black;
-  margin-top: 5px;
-  margin-bottom: 40px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 1.5em;
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 40px;
 }
 
 .login-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .login-form input[type="text"],
 .login-form input[type="password"] {
-  width: 250px;
-  padding: 10px;
-  margin: 5px 0;
-  border: 2px solid #001f4d;
-  border-radius: 5px;
-  font-size: 1em;
-  color: #333;
-  background-color: #f9f9f9;
-  transition: border-color 0.3s ease;
+    width: 250px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 2px solid #001f4d;
+    border-radius: 5px;
+    font-size: 1em;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
 }
 
 .login-form input[type="text"]:focus,
 .login-form input[type="password"]:focus {
-  border-color: #4CAF50;
-  outline: none;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
 }
 
 .login-form button {
-  background-color: #001f4d;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
+    background-color: #001f4d;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
 .login-form button:hover {
-  background-color: #001533;
+    background-color: #001533;
 }
 
+/* --- Catalog Grid / Image Gallery --- */
+/* TASK 4: Image Gallery using Grid */
 .catalog-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+    display: grid; /* Make it a grid container */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 20px; /* Consistent spacing/gaps */
+    max-width: 1200px;
+    margin: 20px auto;
 }
 
 .catalog-item {
-  border: 1px solid #001f4d;
-  width: 200px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+    border: 1px solid #001f4d;
+    padding: 15px;
+    /* Use Flexbox for internal alignment of content */
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    border-radius: 8px;
+    
+    /* Ensure equal height by allowing Grid to stretch it (default) */
+    
+    /* TASK 2, Part 5: Simple Hover Effect (Shadow/Lift) */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* For the optional caption overlay */
+    overflow: hidden; 
+}
+
+.catalog-item:hover {
+    transform: translateY(-5px); /* Lift effect */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+}
+
+/* Optional: Caption Overlay for Task 4, requires adding .caption to HTML */
+.catalog-item:hover .caption {
+    transform: translateY(0); /* Show caption on hover */
 }
 
 .catalog-item img {
-  width: 100%;
-  max-width: 150px;
-  height: auto;
-  border-radius: 50%;
-  margin-bottom: 10px;
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    object-fit: cover;
 }
 
 .catalog-item h3 {
-  color: #001f4d;
-  margin-top: 0;
-  margin-bottom: 5px;
+    color: #001f4d;
+    margin-top: 0;
+    margin-bottom: 5px;
 }
 
 .catalog-item p {
-  margin-top: 0;
-  margin-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
+/* Caption style (if implemented in HTML) */
+.caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 31, 77, 0.85); /* Dark background with opacity */
+    color: white;
+    padding: 10px;
+    transform: translateY(100%); /* Hide caption initially */
+    transition: transform 0.3s ease;
+    text-align: center;
+}
 
+/* --- General Button Style --- */
 .button {
-  display: inline-block;
-  padding: 8px 16px;
-  background-color: #001f4d;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-.button:hover {
-  background-color: #003366;
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #001f4d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: auto; /* Push button to the bottom of the card */
 }
 
+.button:hover {
+    background-color: #003366;
+}
+
+/* --- Order/Cart Card Row --- */
+/* TASK 2: Card Row using Flexbox */
 .order-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 600px;
-  margin: 20px auto;
+    display: flex; /* Make it a flex container */
+    flex-direction: row; /* Cards in a row */
+    justify-content: center;
+    gap: 20px; /* Consistent gaps between cards */
+    flex-wrap: wrap;
+    max-width: 100%; /* Remove size constraint to allow row layout */
+    margin: 20px auto;
 }
 
 .order-card {
-  border: 1px solid #001f4d;
-  margin: 10px 0;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 350px;
-  text-align: left;
+    border: 1px solid #001f4d;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    width: 300px; /* Fixed width for better row layout */
+    max-width: none;
+    text-align: left;
+
+    border-radius: 8px;
+    
+    /* Ensure equal height by flex-stretch (default) */
+
+    /* TASK 2, Part 5: Simple Hover Effect (Scale) */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: scale(1.03); /* Scale up effect */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .order-card img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 15px;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
 }
 
 .order-card-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 .order-card-name {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .order-card-price {
-  font-size: 0.9em;
-  color: #333;
+    font-size: 0.9em;
+    color: #333;
 }
+
+/* --- Task 3: Sidebar/Main Layout (Conceptual) --- */
+/* You would need to add a wrapper in HTML to implement this on a specific page */
+/* For example, for the main content on catalog.html: */
+/*
+.page-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 3fr; 
+    grid-template-areas: "sidebar content";
+    gap: 20px;
+    text-align: left;
+}
+
+.sidebar {
+    grid-area: sidebar;
+    background-color: #f4f4f4;
+    padding: 15px;
+}
+
+.main-content {
+    grid-area: content;
+}
+*/

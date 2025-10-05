@@ -4,6 +4,12 @@ body {
     background-color: #ffffff;
     color: #001f4d;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
 }
 
 footer {

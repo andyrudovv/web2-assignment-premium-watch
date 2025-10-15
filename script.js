@@ -1,12 +1,5 @@
-// ===============================
-// Timeless JavaScript Features
-// ===============================
-
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ===============================
-    // Task 1: Form Validation (index.html)
-    // ===============================
     const loginForm = document.querySelector(".login-form");
     if (loginForm) {
         loginForm.addEventListener("submit", (event) => {
@@ -33,12 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ===============================
-    // Task 2: Accordion (for FAQs)
-    // ===============================
-    // You can add accordion items in any page with:
-    // <div class="accordion-header">Question</div>
-    // <div class="accordion-content">Answer</div>
     const accordionHeaders = document.querySelectorAll(".accordion-header");
     accordionHeaders.forEach(header => {
         header.addEventListener("click", () => {
@@ -53,9 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ===============================
-    // Task 3: Popup Subscription Form
-    // ===============================
     const popup = document.createElement("div");
     popup.classList.add("popup");
     popup.innerHTML = `
@@ -98,9 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
         popup.style.display = "none";
     });
 
-    // ===============================
-    // Task 4: Change Background Color
-    // ===============================
     const colorBtn = document.createElement("button");
     colorBtn.textContent = "Change Background Color";
     colorBtn.classList.add("btn", "btn-success", "color-btn");
@@ -115,9 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.backgroundColor = randomColor;
     });
 
-    // ===============================
-    // Task 5: Current Date and Time
-    // ===============================
     const dateTimeBlock = document.createElement("div");
     dateTimeBlock.classList.add("date-time");
     document.body.appendChild(dateTimeBlock);

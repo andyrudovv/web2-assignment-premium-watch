@@ -1,8 +1,154 @@
-/* Custom styles to complement Bootstrap */
-body {
-    font-family: Georgia, 'Times New Roman', serif;
+body[data-theme="light"] {
     background-color: #ffffff;
     color: #001f4d;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body[data-theme="light"] .theme-toggle-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+body[data-theme="light"] .theme-message {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 2px solid #1565c0;
+}
+
+body[data-theme="light"] .star-rating-container {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #001f4d;
+    border: 1px solid #e0e0e0;
+}
+
+body[data-theme="light"] .navbar {
+    background-color: #001f4d !important;
+}
+
+body[data-theme="light"] .card {
+    background-color: #ffffff;
+    color: #001f4d;
+    border-color: rgba(0, 0, 0, 0.125);
+}
+
+body[data-theme="light"] footer {
+    background-color: #001f4d;
+    color: white;
+}
+
+/* Dark Theme */
+body[data-theme="dark"] {
+    background-color: #1a1a2e;
+    color: #eaeaea;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body[data-theme="dark"] .theme-toggle-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+body[data-theme="dark"] .theme-message {
+    background-color: #16213e;
+    color: #f5f5f5;
+    border: 2px solid #4a5568;
+}
+
+body[data-theme="dark"] .star-rating-container {
+    background-color: rgba(42, 42, 60, 0.95) !important;
+    color: #eaeaea;
+    border: 1px solid #4a5568;
+}
+
+body[data-theme="dark"] .navbar {
+    background-color: #0f3460 !important;
+}
+
+body[data-theme="dark"] .card {
+    background-color: #16213e;
+    color: #eaeaea;
+    border-color: #4a5568;
+}
+
+body[data-theme="dark"] .card-header {
+    background-color: #0f3460 !important;
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] footer {
+    background-color: #0f3460;
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] .form-control {
+    background-color: #16213e;
+    color: #eaeaea;
+    border-color: #4a5568;
+}
+
+body[data-theme="dark"] .form-control:focus {
+    background-color: #1a1a2e;
+    color: #eaeaea;
+    border-color: #667eea;
+}
+
+body[data-theme="dark"] .btn-primary {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+body[data-theme="dark"] .btn-primary:hover {
+    background-color: #5568d3;
+    border-color: #5568d3;
+}
+
+body[data-theme="dark"] .btn-outline-primary {
+    color: #667eea;
+    border-color: #667eea;
+}
+
+body[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: #667eea;
+    color: white;
+}
+
+body[data-theme="dark"] .popup-content {
+    background-color: #16213e;
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] h4,
+body[data-theme="dark"] h5,
+body[data-theme="dark"] h6 {
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] .card-title {
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] .date-time {
+    background-color: #16213e;
+    color: #eaeaea;
+    border: 1px solid #4a5568;
+}
+
+body[data-theme="dark"] .accordion-header {
+    background-color: #16213e;
+    color: #eaeaea;
+}
+
+body[data-theme="dark"] .accordion-content {
+    background-color: #0f3460;
+    color: #eaeaea;
+}
+
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -13,8 +159,6 @@ main {
 }
 
 footer {
-    background-color: #001f4d;
-    color: white;
     text-align: center;
     padding: 10px 0;
     font-size: 0.9em;
@@ -41,7 +185,6 @@ footer {
     background-position: center, 0 0, 30px 30px;
     background-repeat: no-repeat, repeat, repeat;
 }
-
 
 .index-title {
     font-family: Georgia, 'Times New Roman', serif;
@@ -78,7 +221,7 @@ footer {
 }
 
 .card {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .catalog .card-group .card:hover {
@@ -114,6 +257,7 @@ footer {
 .catalog .card-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.3s ease;
 }
 
 .catalog .form-check {
@@ -126,8 +270,8 @@ footer {
 }
 
 .catalog .form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background-color: #0a4cb0;
+    border-color: #0a4cb0;
 }
 
 /* Card group with gaps */
@@ -174,10 +318,6 @@ footer {
     border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.card-title {
-    color: #001f4d;
-}
-
 .carousel-caption {
     color: black;
 }
@@ -207,12 +347,14 @@ footer {
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
     .card-img-top,
-    .carousel-item {
+    .carousel-item,
+    body,
+    .card,
+    .theme-toggle-btn {
         transition: none;
     }
 }
 
-/* Responsive Typography - Task 1 */
 /* Mobile styles (default) */
 h1 {
     font-size: 1.5rem;
@@ -266,4 +408,75 @@ p {
     p {
         font-size: 1.1rem;
     }
+}
+
+/* Additional star rating styles */
+.star {
+    user-select: none;
+}
+
+.star:hover {
+    transform: scale(1.1);
+}
+
+/* Popup styles enhancement */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.close-btn {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close-btn:hover {
+    color: #dc3545;
+}
+
+.accordion-header {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header:hover {
+    background-color: #e9ecef;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.accordion-content.show {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+
 }

@@ -1,4 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const successSound = document.createElement('audio');
+successSound.src = 'sounds/success.mp3'; 
+successSound.preload = 'auto';
+
+const errorSound = document.createElement('audio');
+errorSound.src = 'sounds/error.mp3'; 
+errorSound.preload = 'auto';
+
+document.body.appendChild(successSound);
+document.body.appendChild(errorSound);
+
+function playSuccessSound() {
+    successSound.currentTime = 0; 
+    successSound.play().catch(err => console.log('Audio play failed:', err));
+}
+
+function playErrorSound() {
+    errorSound.currentTime = 0; 
+    errorSound.play().catch(err => console.log('Audio play failed:', err));
+}
+
+function playClickSound() {
+    errorSound.currentTime = 0;
+    errorSound.play().catch(err => console.log('Audio play failed:', err));
+}
 
     const currentTheme = document.body.getAttribute('data-theme') || 'light';
     document.body.setAttribute('data-theme', currentTheme);
@@ -532,17 +557,5 @@ button.addEventListener("click", () => {
       easing: "ease-out"
     }
   );
-  const clickSound = new Audio("sounds/message-sound.mp3");
-const successSound = new Audio("sounds/button-click-clear-soft.mp3");
-
-document.getElementById("subscribeForm").addEventListener("click", () => {
-  clickSound.play();
 });
-
-document.getElementById("submit").addEventListener("click", () => {
-  successSound.play();
-});
-
-});
-
 });

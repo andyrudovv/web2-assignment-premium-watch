@@ -472,7 +472,243 @@ function playClickSound() {
     });
 
     if (!window.location.href.includes("catalog.html")) return;
+    
+    // Autosuggestions for catalog filter search (#catalogSearch)
+    (function catalogAutoSuggest() {
+        const searchInput = document.getElementById('catalogSearch');
+        if (!searchInput) return;
 
+        // collect unique product titles
+        const titles = Array.from(document.querySelectorAll('.card .card-title'))
+            .map(el => el.textContent.trim())
+            .filter(Boolean);
+        const suggestions = [...new Set(titles)];
+
+        // create dropdown container
+        const dropdown = document.createElement('div');
+        dropdown.className = 'catalog-suggestions';
+        Object.assign(dropdown.style, {
+            position: 'absolute',
+            zIndex: 1050,
+            background: '#ffffff',
+            border: '1px solid rgba(0,0,0,0.12)',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+            maxHeight: '220px',
+            overflowY: 'auto',
+            width: (searchInput.offsetWidth || 260) + 'px',
+            display: 'none',
+            borderRadius: '6px'
+        });
+
+        // ensure parent positioned so absolute dropdown aligns
+        const parent = searchInput.parentElement;
+        if (parent) parent.style.position = parent.style.position || 'relative';
+        parent.appendChild(dropdown);
+
+        let activeIndex = -1;
+
+        function render(list) {
+            dropdown.innerHTML = '';
+            if (!list.length) {
+                dropdown.style.display = 'none';
+                activeIndex = -1;
+                return;
+            }
+            list.forEach((text, idx) => {
+                const item = document.createElement('div');
+                item.className = 'catalog-suggestion-item';
+                item.textContent = text;
+                Object.assign(item.style, {
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    borderBottom: '1px solid rgba(0,0,0,0.04)'
+                });
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // preserve focus
+                    searchInput.value = text;
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    dropdown.style.display = 'none';
+                });
+                item.addEventListener('mouseenter', () => setActive(idx));
+                dropdown.appendChild(item);
+            });
+            dropdown.style.display = 'block';
+            setActive(-1);
+        }
+
+        function setActive(i) {
+            const items = dropdown.querySelectorAll('.catalog-suggestion-item');
+            items.forEach((it, idx) => it.style.background = idx === i ? '#f0f8ff' : 'transparent');
+            activeIndex = i;
+        }
+
+        function update(q) {
+            const ql = q.trim().toLowerCase();
+            if (!ql) return render([]);
+            const matches = suggestions.filter(s => s.toLowerCase().includes(ql)).slice(0, 8);
+            render(matches);
+        }
+
+        // debounce input
+        let dt;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(dt);
+            dt = setTimeout(() => update(e.target.value), 150);
+        });
+
+        // keyboard navigation
+        searchInput.addEventListener('keydown', (e) => {
+            const items = dropdown.querySelectorAll('.catalog-suggestion-item');
+            if (dropdown.style.display === 'none' || items.length === 0) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActive(Math.min(activeIndex + 1, items.length - 1));
+                items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActive(Math.max(activeIndex - 1, 0));
+                items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0) {
+                    e.preventDefault();
+                    items[activeIndex].dispatchEvent(new MouseEvent('mousedown'));
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // hide on blur (delay allows click)
+        searchInput.addEventListener('blur', () => setTimeout(() => dropdown.style.display = 'none', 150));
+        window.addEventListener('resize', () => dropdown.style.width = (searchInput.offsetWidth || 260) + 'px');
+    })();
+
+    // Apply filters: search + checkboxes
+    (function setupApplyFilters() {
+        const searchInput = document.getElementById('catalogSearch');
+        const applyBtn = document.getElementById('applyFilters');
+        const clearBtn = document.getElementById('clearFilters');
+        const cards = Array.from(document.querySelectorAll('.catalog .card-group .card'));
+
+        function parsePrice(card) {
+            const p = card.querySelector('.card-text.fw-bold')?.textContent || '';
+            const m = p.replace(/[, ]/g, '').match(/\$?(\d+)/);
+            return m ? Number(m[1]) : Number(card.dataset.price || 0);
+        }
+
+        function matchesPrice(price, checkedRanges) {
+            if (checkedRanges.length === 0) return true;
+            return checkedRanges.some(r => {
+                if (r === 'priceUnder200') return price < 200;
+                if (r === 'price200to300') return price >= 200 && price <= 300;
+                if (r === 'priceOver300') return price > 300;
+                return true;
+            });
+        }
+
+        function getCheckedIds(ids) {
+            return ids.map(id => document.getElementById(id))
+                      .filter(Boolean)
+                      .filter(el => el.checked)
+                      .map(el => el.id);
+        }
+
+        function applyFilters() {
+            const q = (searchInput?.value || '').trim().toLowerCase();
+            const priceChecks = getCheckedIds(['priceUnder200','price200to300','priceOver300']);
+            const typeChecks = getCheckedIds(['classic','modern','luxury']);
+            const brandChecks = getCheckedIds(['timeless','premium']);
+            const availabilityChecks = getCheckedIds(['inStock','limited']); // 'limited' used as limited edition
+
+            let visible = 0;
+            cards.forEach(card => {
+                const title = (card.querySelector('.card-title')?.textContent || '').toLowerCase();
+                const desc = (card.querySelector('.card-text')?.textContent || '').toLowerCase();
+                const price = parsePrice(card);
+                const type = (card.dataset.type || '').toLowerCase();
+                const brand = (card.dataset.brand || '').toLowerCase();
+                const available = (card.dataset.available || 'true').toLowerCase() === 'true';
+
+                // search match
+                const searchMatch = !q || title.includes(q) || desc.includes(q) || String(price).includes(q);
+
+                // price match
+                const priceMatch = matchesPrice(price, priceChecks);
+
+                // type match
+                const typeMatch = typeChecks.length === 0 || typeChecks.some(id => id.replace(/-/g,'') && id.includes(type) || id.startsWith(type));
+                // simpler: if types selected, require card type to be among them
+                const typeSelectedMatch = typeChecks.length === 0 || typeChecks.some(id => id === type);
+
+                // brand match
+                const brandSelectedMatch = brandChecks.length === 0 || brandChecks.some(id => id === brand);
+
+                // availability match
+                let availabilitySelectedMatch = true;
+                if (availabilityChecks.length) {
+                    // 'inStock' -> available true, 'limited' -> available false
+                    availabilitySelectedMatch = availabilityChecks.some(id => {
+                        if (id === 'inStock') return available === true;
+                        if (id === 'limited') return available === false;
+                        return true;
+                    });
+                }
+
+                const show = searchMatch && priceMatch && (typeSelectedMatch || typeChecks.length === 0) && brandSelectedMatch && availabilitySelectedMatch;
+
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            // update showing count text if exists
+            const countLabel = document.querySelector('.col-md-6 .text-muted') || document.querySelector('#catalogCount');
+            if (countLabel) {
+                const total = cards.length;
+                countLabel.textContent = `Showing ${visible} of ${total} products`;
+            }
+        }
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                applyBtn.animate(
+                    [
+                        { transform: "scale(1)", opacity: 1 },
+                        { transform: "scale(1.05)", opacity: 0.95 },
+                        { transform: "scale(1)", opacity: 1 }
+                    ],
+                    { duration: 220, easing: "ease-out" }
+                );
+                applyFilters();
+            });
+        }
+
+        // Enter key on search triggers apply
+        if (searchInput) {
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                // clear inputs and checkboxes
+                if (searchInput) searchInput.value = '';
+                ['priceUnder200','price200to300','priceOver300','classic','modern','luxury','timeless','premium','inStock','limited']
+                    .forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && el.type === 'checkbox') el.checked = false;
+                    });
+                applyFilters();
+            });
+        }
+
+        // initial apply to ensure consistent state
+        applyFilters();
+    })();
+ 
     const productGroups = document.querySelectorAll(".card-group");
     if (productGroups.length <= 2) return; 
     for (let i = 2; i < productGroups.length; i++) {
@@ -544,18 +780,20 @@ function playClickSound() {
     });
     
     const button = document.getElementById("applyFilters");
-
-button.addEventListener("click", () => {
-  button.animate(
-    [
-      { transform: "scale(1)", opacity: 1 },
-      { transform: "scale(1.2)", opacity: 0.8 },
-      { transform: "scale(1)", opacity: 1 }
-    ],
-    {
-      duration: 400,
-      easing: "ease-out"
-    }
-  );
-});
+    
+if (button) {
+  button.addEventListener("click", () => {
+    button.animate(
+      [
+        { transform: "scale(1)", opacity: 1 },
+        { transform: "scale(1.2)", opacity: 0.8 },
+        { transform: "scale(1)", opacity: 1 }
+      ],
+      {
+        duration: 400,
+        easing: "ease-out"
+      }
+    );
+  });
+}
 });

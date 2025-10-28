@@ -1,3 +1,8 @@
+
+$(document).ready(function() {
+    console.log("jQuery is ready!");
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const successSound = document.createElement('audio');
 successSound.src = 'sounds/success.mp3'; 

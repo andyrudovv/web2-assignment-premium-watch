@@ -7,9 +7,26 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 </head>
 <body>
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-value anim-counter" data-target="1500" data-duration="2000" data-suffix="+" data-sep="true">0</div>
+            <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value anim-counter" data-target="320" data-duration="1500" data-suffix="+" data-sep="false">0</div>
+            <div class="stat-label">Stores</div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-value anim-counter" data-target="987654" data-duration="2200" data-suffix="" data-sep="true">0</div>
+            <div class="stat-label">Items Sold</div>
+        </div>
+    </div>
+
     <!-- Bootstrap Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
@@ -38,6 +55,7 @@
         </div>
     </nav>
     
+
     <!-- Bootstrap Carousel -->
     <section id="watchCarousel" class="carousel slide" data-bs-ride="carousel" aria-label="Watch showcase carousel">
         <div class="carousel-indicators">
@@ -132,7 +150,9 @@
                 <h2 class="text-center mb-4">Our Watches</h2>
             </div>
         </div>
-        
+        <section id="gallery" class="container my-5">
+
+    </section>
         <div class="row">
             <!-- Sidebar with Filters -->
             <div class="col-lg-2 col-md-3 mb-4">
@@ -260,7 +280,7 @@
                 <!-- Bootstrap Card Group Layout with spacing -->
                 <div class="card-group ">
                     <div class="card" data-price="150" data-type="classic" data-brand="Timeless" data-available="true">
-                         <img src="imgs/1.jpg" class="card-img-top" alt="Classic Watch">
+                         <img data-src="imgs/1.jpg" class="card-img-top lazy" alt="Classic Watch">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Classic Watch</h5>
                              <p class="card-text">Timeless elegance meets modern precision</p>
@@ -271,7 +291,7 @@
                          </div>
                     </div>
                     <div class="card" data-price="200" data-type="modern" data-brand="Premium" data-available="true">
-                         <img src="imgs/9.webp" class="card-img-top" alt="Modern Watch">
+                          <img data-src="imgs/9.webp"class="card-img-top lazy" alt="Modern watch">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Modern Watch</h5>
                              <p class="card-text">Contemporary design with cutting-edge technology</p>
@@ -282,7 +302,7 @@
                          </div>
                     </div>
                     <div class="card" data-price="350" data-type="luxury" data-brand="Premium" data-available="true">
-                         <img src="imgs/2.jpg" class="card-img-top" alt="Luxury Watch">
+                         <img data-src="imgs/2.jpg" class="card-img-top lazy" alt="Luxury watch">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Luxury Watch</h5>
                              <p class="card-text">Premium craftsmanship and exquisite materials</p>
@@ -296,7 +316,7 @@
                  
                  <div class="card-group  mt-4">
                     <div class="card" data-price="160" data-type="classic" data-brand="Timeless" data-available="true">
-                         <img src="imgs/3.jpg" class="card-img-top" alt="Classic Watch V2">
+                         <img data-src="imgs/3.jpg" class="card-img-top lazy" alt="Classic Watch V2">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Classic Watch V2</h5>
                              <p class="card-text">Refined classic design with enhanced features</p>
@@ -307,7 +327,7 @@
                          </div>
                     </div>
                     <div class="card" data-price="210" data-type="modern" data-brand="Premium" data-available="true">
-                         <img src="imgs/4.jpg" class="card-img-top" alt="Modern Watch V2">
+                         <img data-src="imgs/4.jpg" class="card-img-top lazy" alt="Modern Watch V2">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Modern Watch V2</h5>
                              <p class="card-text">Advanced features in a sleek modern package</p>
@@ -318,7 +338,7 @@
                          </div>
                     </div>
                     <div class="card" data-price="360" data-type="luxury" data-brand="Premium" data-available="false">
-                         <img src="imgs/5.jpg" class="card-img-top" alt="Luxury Watch V2">
+                         <img data-src="imgs/5.jpg" class="card-img-top lazy" alt="Luxury watch V2">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Luxury Watch V2</h5>
                              <p class="card-text">Ultimate luxury with superior performance</p>
@@ -332,7 +352,7 @@
                  
                  <div class="card-group  mt-4">
                     <div class="card" data-price="170" data-type="classic" data-brand="Timeless" data-available="true">
-                         <img src="imgs/6.jpg" class="card-img-top" alt="Classic Watch V3">
+                         <img data-src="imgs/6.jpg" class="card-img-top lazy" alt="Classic Watch V2">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Classic Watch V3</h5>
                              <p class="card-text">Heritage design with modern reliability</p>
@@ -343,7 +363,7 @@
              </div>
              </div>
                     <div class="card" data-price="220" data-type="modern" data-brand="Premium" data-available="true">
-                         <img src="imgs/7.webp" class="card-img-top" alt="Modern Watch V3">
+                         <img data-src="imgs/7.webp"class="card-img-top lazy" alt="Modern watch V3">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Modern Watch V3</h5>
                              <p class="card-text">Next-generation technology meets style</p>
@@ -354,7 +374,7 @@
              </div>
              </div>
                     <div class="card" data-price="370" data-type="luxury" data-brand="Premium" data-available="true">
-                         <img src="imgs/8.jpg" class="card-img-top" alt="Luxury Watch V3">
+                         <img data-src="imgs/8.jpg" class="card-img-top lazy" alt="Luxury watch V3">
                          <div class="card-body d-flex flex-column">
                              <h5 class="card-title">Luxury Watch V3</h5>
                              <p class="card-text">The pinnacle of luxury timekeeping</p>
@@ -371,18 +391,32 @@
             <h3 class="text-center mb-4">Frequently Asked Questions</h3>
 
             <div class="accordion-header">What makes Timeless watches special?</div>
-            <div class="accordion-content">Our watches combine precision engineering with classic design.</div>
+            <div class="accordion-content">
+                Our watches combine precision engineering with classic design.
+                <button class="copy-btn" title="Copy answer">📋</button>
+            </div>
 
             <div class="accordion-header">Do you offer international shipping?</div>
-            <div class="accordion-content">Yes, we ship worldwide with tracking and insurance.</div>
+            <div class="accordion-content">
+                Yes, we ship worldwide with tracking and insurance.
+                <button class="copy-btn" title="Copy answer">📋</button>
+            </div>
 
             <div class="accordion-header">Can I return a product?</div>
-            <div class="accordion-content">Absolutely! Returns are accepted within 14 days of delivery.</div>
+            <div class="accordion-content">
+                Absolutely! Returns are accepted within 14 days of delivery.
+                <button class="copy-btn" title="Copy answer">📋</button>
+            </div>
         </section>
+
+
+        <div id="toastContainer"></div>
+
     </main>
     <footer role="contentinfo">project by Andrey &amp; Dinara</footer>
     <script src="script.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </body>
 </html>

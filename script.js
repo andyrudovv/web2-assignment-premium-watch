@@ -32,12 +32,44 @@ function playClickSound() {
     errorSound.play().catch(err => console.log('Audio play failed:', err));
 }
 
-    const currentTheme = document.body.getAttribute('data-theme') || 'light';
-    document.body.setAttribute('data-theme', currentTheme);
+    // Theme handling: read from localStorage, fallback to prefers-color-scheme, persist on change
+    const THEME_KEY = 'timeless-theme';
 
+    function getStoredTheme() {
+        try {
+            return localStorage.getItem(THEME_KEY);
+        } catch (e) { return null; }
+    }
+
+    function storeTheme(t) {
+        try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+    }
+
+    
+    function setTheme(theme) {
+        if (theme !== 'dark' && theme !== 'light') theme = 'light';
+        document.body.setAttribute('data-theme', theme);
+        themeToggle.textContent = theme === 'dark' ? 'Day Mode' : 'Night Mode';
+        themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        storeTheme(theme);
+        
+        if (typeof updateThemeMessage === 'function') updateThemeMessage(theme);
+        
+        try {
+            let meta = document.querySelector('meta[name="theme-color"]');
+            if (!meta) {
+                meta = document.createElement('meta');
+                meta.name = 'theme-color';
+                document.head.appendChild(meta);
+            }
+            meta.content = theme === 'dark' ? '#0f3460' : '#ffffff';
+        } catch (e) {}
+    }
+
+    // create toggle button
     const themeToggle = document.createElement("button");
-    themeToggle.innerHTML = currentTheme === 'dark' ? 'Day Mode' : 'Night Mode';
     themeToggle.classList.add("btn", "theme-toggle-btn");
+    themeToggle.setAttribute('aria-label', 'Toggle color theme');
     themeToggle.style.position = "fixed";
     themeToggle.style.top = "80px";
     themeToggle.style.right = "20px";
@@ -53,14 +85,22 @@ function playClickSound() {
     document.body.appendChild(themeToggle);
 
     themeToggle.addEventListener("click", () => {
-        const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
-        document.body.setAttribute('data-theme', newTheme);
-        themeToggle.innerHTML = newTheme === 'dark' ? 'Day Mode' : 'Night Mode';
-        
-        updateThemeMessage(newTheme);
+        const current = document.body.getAttribute('data-theme') || 'light';
+        setTheme(current === 'light' ? 'dark' : 'light');
+        playClickSound();
     });
+
+    // initialize theme: stored -> system preference -> default light
+    (function initTheme() {
+        const stored = getStoredTheme();
+        if (stored) {
+            setTheme(stored);
+            return;
+        }
+        // prefer system preference
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+    })();
 
     const themeMessage = document.createElement("div");
     themeMessage.classList.add("theme-message");

@@ -1,9 +1,11 @@
 
-$(document).ready(function() {
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    $(document).ready(function() {
     console.log("jQuery is ready!");
 });
 
-document.addEventListener("DOMContentLoaded", () => {
     const successSound = document.createElement('audio');
 successSound.src = 'sounds/success.mp3'; 
 successSound.preload = 'auto';
@@ -75,103 +77,20 @@ function playClickSound() {
     themeMessage.style.textAlign = "center";
     document.body.appendChild(themeMessage);
 
-    const ratingContainer = document.createElement("div");
-    ratingContainer.classList.add("star-rating-container");
-    ratingContainer.style.position = "fixed";
-    ratingContainer.style.bottom = "120px";
-    ratingContainer.style.right = "20px";
-    ratingContainer.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-    ratingContainer.style.padding = "20px";
-    ratingContainer.style.borderRadius = "15px";
-    ratingContainer.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.1)";
-    ratingContainer.style.zIndex = "998";
-    ratingContainer.style.minWidth = "200px";
-    
-    const ratingTitle = document.createElement("p");
-    ratingTitle.textContent = "Rate Our Service:";
-    ratingTitle.style.margin = "0 0 10px 0";
-    ratingTitle.style.fontWeight = "bold";
-    ratingTitle.style.textAlign = "center";
-    ratingContainer.appendChild(ratingTitle);
+    function showToast(message, type = "info", duration = 3000) {
+        const toast = $(`
+            <div class="toast ${type}">
+            ${message}
+            </div>
+            `);
+            $("#toastContainer").append(toast);
 
-    const starsWrapper = document.createElement("div");
-    starsWrapper.classList.add("stars-wrapper");
-    starsWrapper.style.display = "flex";
-    starsWrapper.style.justifyContent = "center";
-    starsWrapper.style.gap = "8px";
-    starsWrapper.style.fontSize = "30px";
-    starsWrapper.style.cursor = "pointer";
-    
-    for (let i = 1; i <= 5; i++) {
-        const star = document.createElement("span");
-        star.classList.add("star");
-        star.setAttribute("data-rating", i);
-        star.innerHTML = "★";
-        star.style.color = "#ddd";
-        star.style.transition = "color 0.2s ease, transform 0.2s ease";
-        starsWrapper.appendChild(star);
-    }
-    
-    ratingContainer.appendChild(starsWrapper);
-    
-    const ratingMessage = document.createElement("p");
-    ratingMessage.classList.add("rating-message");
-    ratingMessage.textContent = "Click a star to rate";
-    ratingMessage.style.margin = "10px 0 0 0";
-    ratingMessage.style.textAlign = "center";
-    ratingMessage.style.fontSize = "14px";
-    ratingMessage.style.minHeight = "20px";
-    ratingContainer.appendChild(ratingMessage);
-    
-    document.body.appendChild(ratingContainer);
-
-    const stars = document.querySelectorAll(".star");
-    let selectedRating = 0;
-
-    stars.forEach((star, index) => {
-        star.addEventListener("mouseenter", () => {
-            highlightStars(index + 1, false);
-        });
-        
-        star.addEventListener("mouseleave", () => {
-            highlightStars(selectedRating, true);
-        });
-        
-        star.addEventListener("click", () => {
-            selectedRating = index + 1;
-            highlightStars(selectedRating, true);
-            updateRatingMessage(selectedRating);
-            
-            star.style.transform = "scale(1.3)";
+            setTimeout(() => toast.addClass("show"), 100);
             setTimeout(() => {
-                star.style.transform = "scale(1)";
-            }, 200);
-        });
-    });
-
-    function highlightStars(count, isSelected) {
-        stars.forEach((star, index) => {
-            if (index < count) {
-                star.style.color = isSelected ? "#FFD700" : "#FFA500";
-            } else {
-                star.style.color = "#ddd";
-            }
-        });
-    }
-
-    function updateRatingMessage(rating) {
-        const messages = [
-            "Click a star to rate",
-            " Poor, we'll do better!",
-            " Fair, room for improvement",
-            " Good, thank you!",
-            " Very Good, we're pleased!",
-            " Excellent, you're amazing!"
-        ];
-        ratingMessage.innerHTML = messages[rating];
-        ratingMessage.style.fontWeight = "bold";
-        ratingMessage.style.color = rating >= 4 ? "#28a745" : rating >= 3 ? "#ffc107" : "#dc3545";
-    }
+                toast.removeClass("show");
+                setTimeout(() => toast.remove(), 400);
+            }, duration);
+        }
 
     const isCatalogPage = window.location.pathname.includes('catalog.html');
     
@@ -317,11 +236,11 @@ function playClickSound() {
                     
                     document.body.setAttribute('data-greeted', 'true');
                     
-                    showValidationMessage(`Welcome, ${userName}! Enjoy browsing our collection.`, "success");
+                    showToast(`Welcome, ${userName}! Enjoy browsing our collection.`, "success");
                 } else {
                     userNameInput.style.borderColor = "#dc3545";
                     userNameInput.focus();
-                    showValidationMessage("Please enter your name", "error");
+                    showToast("Please enter your name", "error");
                     
                     setTimeout(() => {
                         userNameInput.style.borderColor = "#90caf9";
@@ -363,21 +282,20 @@ function playClickSound() {
             const passwordInput = document.getElementById("password");
 
             if (!loginInput.value.trim()) {
-                showValidationMessage("Please enter your login.", "error");
+                showToast("Please enter your login.", "error");
                 loginInput.focus();
                 return;
             }
-
-            if (passwordInput.value.length < 6) {
-                showValidationMessage("Password must be at least 6 characters long.", "error");
-                passwordInput.focus();
-                return;
-            }
-
-            showValidationMessage("Login successful! Redirecting...", "success");
+            
+            showToast("Login successful! Redirecting...", "success");
+            const $btn = $('.login-form button[type="submit"]');
+            const originalBtnText = $btn.html();
+            $btn.html('<span class="spinner"></span> Please wait...');
+            $btn.prop('disabled', true);
+            
             setTimeout(() => {
                 window.location.href = "catalog.html";
-            }, 1000);
+            }, 1500);
         });
     }
 
@@ -657,7 +575,30 @@ function playClickSound() {
                         if (id === 'limited') return available === false;
                         return true;
                     });
+
+                    highlightMatches(q);
+
                 }
+                
+                function highlightMatches(query) {
+                    $(".card-title, .card-text").each(function () {
+                        const el = $(this);
+                        el.html(el.text()); 
+                    });
+                    
+                    if (!query) return;
+                    
+                    const regex = new RegExp("(" + query + ")", "gi");
+                    $(".card-title, .card-text").each(function () {
+                        const el = $(this);
+                        el.contents().each(function () {
+                            if (this.nodeType === 3 && regex.test(this.nodeValue)) {
+                                const newHTML = this.nodeValue.replace(regex, "<span class='highlight'>$1</span>");
+                                $(this).replaceWith(newHTML);}
+                            });
+                        });
+                    }
+
 
                 const show = searchMatch && priceMatch && (typeSelectedMatch || typeChecks.length === 0) && brandSelectedMatch && availabilitySelectedMatch;
 
@@ -749,6 +690,7 @@ function playClickSound() {
 
         loadMoreBtn.style.display = "none";
     });
+    
 
     const dateTimeBlock = document.createElement("div");
     dateTimeBlock.classList.add("date-time");
@@ -801,4 +743,222 @@ if (button) {
     );
   });
 }
+
+// ========== Scroll Progress Bar (jQuery) ==========
+(function () {
+  if (typeof jQuery === 'undefined') return;
+  if ($('#scrollProgressContainer').length === 0) {
+    $('body').prepend('<div id="scrollProgressContainer"><div id="scrollProgress"></div></div>');
+  }
+  if ($('#progressCircle').length === 0) {
+    $('body').append('<div id="progressCircle"><span class="pct">0%</span></div>');
+  }
+
+  const $bar = $('#scrollProgress');
+  const $circle = $('#progressCircle');
+  const $pct = $('#progressCircle .pct');
+
+  function updateScrollProgress() {
+    const docH = $(document).height() - $(window).height();
+    const scrollTop = $(window).scrollTop();
+    const percent = docH > 0 ? Math.round((scrollTop / docH) * 100) : 0;
+
+    $bar.css('width', percent + '%');
+
+    $pct.text(percent + '%');
+
+    if (percent > 3) {
+      if (!$circle.is(':visible')) $circle.fadeIn(140);
+    } else {
+      if ($circle.is(':visible')) $circle.fadeOut(120);
+    }
+  }
+
+  let ticking = false;
+  function requestUpdate() {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        updateScrollProgress();
+        ticking = false;
+      });
+    }
+  }
+
+  updateScrollProgress();
+
+  $(window).on('scroll resize', requestUpdate);
+
+  $circle.on('click', function (e) {
+    e.preventDefault();
+    $('html, body').animate({ scrollTop: 0 }, 450);
+  });
+
+  $circle.attr('title', 'Scroll to top');
+
+  $('#scrollProgressContainer').on('click', function (e) {
+    const $w = $(window);
+    const clickX = e.clientX; // px from left
+    const width = $(this).width();
+    const clickRatio = Math.min(Math.max(clickX / width, 0), 1);
+    const targetScroll = Math.round(( $(document).height() - $w.height() ) * clickRatio);
+    $('html, body').animate({ scrollTop: targetScroll }, 350);
+  });
+
+})();
+// ========= Animated Number Counter (jQuery) =========
+(function () {
+  if (typeof jQuery === 'undefined') return;
+
+  function formatNumber(n, useSep) {
+    if (!useSep) return n;
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  function animateValue($el, start, end, duration, useSep, suffix) {
+    const startTime = performance.now();
+    const range = end - start;
+    function step(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = Math.floor(start + range * eased);
+      $el.text(formatNumber(current, useSep) + (suffix || ""));
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        $el.text(formatNumber(end, useSep) + (suffix || ""));
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function setupCounters() {
+    const $counters = $('.anim-counter').not('._counted'); 
+    if ($counters.length === 0) return;
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const $el = $(entry.target);
+            startCounterFor($el);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      $counters.each(function () { io.observe(this); });
+    } else {
+      $counters.each(function () { startCounterFor($(this)); });
+    }
+
+    function startCounterFor($el) {
+      if ($el.hasClass('_counted')) return;
+      const target = parseInt($el.data('target') || $el.text().replace(/[^\d]/g, ''), 10) || 0;
+      const duration = parseInt($el.data('duration') || 2000, 10);
+      const suffix = $el.data('suffix') || '';
+      const useSep = String($el.data('sep')) === 'true';
+      const start = 0;
+      $el.addClass('_counted');
+      animateValue($el, start, target, duration, useSep, suffix);
+    }
+  }
+
+  $(document).ready(function () {
+    setupCounters();
+  });
+
+  window.TimelessInitCounters = setupCounters;
+
+  $(document).ready(function () {
+    $('#loginForm').submit(function (event) {
+        event.preventDefault();
+        const $btn = $('#submitBtn');
+        const originalText = $btn.text();
+        
+        $btn
+        .prop('disabled', true)
+        .html(`<div class="spinner"></div> Please wait...`);
+
+
+        setTimeout(() => {
+            $btn
+            .prop('disabled', false)
+            .text(originalText);
+            alert("Login successful!"); 
+        }, 2000);
+  });
+});
+
+$(document).ready(function () {
+  $(".copy-btn").on("click", function () {
+    const $content = $(this).parent();
+    const textToCopy = $content.clone().children().remove().end().text().trim(); 
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      $(this).text("✅");
+      const tooltip = $('<div class="copy-tooltip">Copied!</div>');
+      $content.append(tooltip);
+      setTimeout(() => tooltip.addClass("show"), 50);
+
+      setTimeout(() => {
+        tooltip.removeClass("show");
+        setTimeout(() => tooltip.remove(), 300);
+        $(this).text("📋");
+      }, 1500);
+    });
+  });
+});
+
+$(document).ready(function () {
+
+  $(".accordion-header").on("click", function () {
+    const content = $(this).next(".accordion-content");
+
+    $(".accordion-content").not(content).slideUp(200);
+
+    content.stop(true, true).slideToggle(200);
+  });
+  $(".copy-btn").on("click", function (event) {
+    event.stopPropagation(); 
+    const $content = $(this).parent();
+    const textToCopy = $content.clone().children().remove().end().text().trim();
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      $(this).text("✅");
+      const tooltip = $('<div class="copy-tooltip">Copied!</div>');
+      $content.append(tooltip);
+      setTimeout(() => tooltip.addClass("show"), 50);
+
+      setTimeout(() => {
+        tooltip.removeClass("show");
+        setTimeout(() => tooltip.remove(), 300);
+        $(this).text("📋");
+      }, 1500);
+    });
+  });
+
+});
+  function lazyLoad() {
+    $('.lazy').each(function() {
+      const imgTop = $(this).offset().top;
+      const scrollBottom = $(window).scrollTop() + $(window).height();
+
+      if (scrollBottom > imgTop - 100) {
+        const src = $(this).attr('data-src');
+        if (src) {
+          $(this).attr('src', src).removeAttr('data-src');
+          $(this).on('load', function() {
+            $(this).addClass('loaded');
+          });
+        }
+      }
+    });
+  }
+
+  $(window).on('scroll', lazyLoad);
+  $(window).on('load', lazyLoad);
+
+})();
+
 });

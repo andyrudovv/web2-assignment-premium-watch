@@ -746,7 +746,7 @@ if (button) {
 
 // ========== Scroll Progress Bar (jQuery) ==========
 (function () {
-  if (typeof jQuery === 'undefined') return; 
+  if (typeof jQuery === 'undefined') return;
   if ($('#scrollProgressContainer').length === 0) {
     $('body').prepend('<div id="scrollProgressContainer"><div id="scrollProgress"></div></div>');
   }
@@ -873,9 +873,6 @@ if (button) {
   $(document).ready(function () {
     $('#loginForm').submit(function (event) {
         event.preventDefault();
-        event.stopPropagation();
-
-
         const $btn = $('#submitBtn');
         const originalText = $btn.text();
         

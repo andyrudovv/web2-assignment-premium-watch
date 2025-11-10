@@ -1,4 +1,4 @@
-
+const CURRENCY_API_KEY = '8a255bad67-c9308cf6c6-t5imga';
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -32,6 +32,21 @@ function playClickSound() {
     errorSound.play().catch(err => console.log('Audio play failed:', err));
 }
 
+// Cart persistence helpers
+function formatCurrency(n) {
+    if (n == null || isNaN(n)) return '$0';
+    if (Number.isInteger(n)) return '$' + n;
+    return '$' + Number(n).toFixed(2);
+}
+
+function saveCartObject(obj) {
+    try { localStorage.setItem('timeless-cart', JSON.stringify(obj)); } catch (e) { console.warn('saveCart failed', e); }
+}
+
+function loadCartObject() {
+    try { return JSON.parse(localStorage.getItem('timeless-cart') || 'null') || null; } catch (e) { return null; }
+}
+
     // Theme handling: read from localStorage, fallback to prefers-color-scheme, persist on change
     const THEME_KEY = 'timeless-theme';
 
@@ -49,7 +64,8 @@ function playClickSound() {
     function setTheme(theme) {
         if (theme !== 'dark' && theme !== 'light') theme = 'light';
         document.body.setAttribute('data-theme', theme);
-        themeToggle.textContent = theme === 'dark' ? 'Day Mode' : 'Night Mode';
+    // show a compact icon indicating the opposite mode (sun for day, moon for night)
+    themeToggle.innerHTML = theme === 'dark' ? '☀️' : '🌙';
         themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
         storeTheme(theme);
         
@@ -66,29 +82,230 @@ function playClickSound() {
         } catch (e) {}
     }
 
-    // create toggle button
+    // create toggle button (we'll place it into the navbar as an icon)
     const themeToggle = document.createElement("button");
-    themeToggle.classList.add("btn", "theme-toggle-btn");
+    themeToggle.classList.add("btn", "theme-toggle-btn", "nav-theme-toggle");
     themeToggle.setAttribute('aria-label', 'Toggle color theme');
-    themeToggle.style.position = "fixed";
-    themeToggle.style.top = "80px";
-    themeToggle.style.right = "20px";
-    themeToggle.style.zIndex = "1000";
-    themeToggle.style.padding = "10px 20px";
+    // compact navbar-friendly styling (preserve theming via CSS classes)
+    themeToggle.style.padding = "6px 10px";
     themeToggle.style.border = "none";
-    themeToggle.style.borderRadius = "25px";
+    themeToggle.style.borderRadius = "6px";
     themeToggle.style.cursor = "pointer";
-    themeToggle.style.fontWeight = "bold";
-    themeToggle.style.fontSize = "16px";
-    themeToggle.style.transition = "all 0.3s ease";
-    themeToggle.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.2)";
-    document.body.appendChild(themeToggle);
+    themeToggle.style.fontWeight = "600";
+    themeToggle.style.fontSize = "14px";
+    themeToggle.style.transition = "all 0.2s ease";
+    themeToggle.innerHTML = '🌙';
 
     themeToggle.addEventListener("click", () => {
         const current = document.body.getAttribute('data-theme') || 'light';
         setTheme(current === 'light' ? 'dark' : 'light');
         playClickSound();
     });
+
+    // Insert the theme toggle into the navbar (left of the nav links)
+    (function placeThemeToggleInNavbar() {
+        const navbarContainer = document.querySelector('.navbar .container-fluid');
+        if (!navbarContainer) return;
+        const navList = navbarContainer.querySelector('ul.navbar-nav');
+        if (!navList) return;
+
+        // create a nav item to hold the button and insert it before the first nav link
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+
+        // style the button to look like a nav-link
+        themeToggle.classList.add('nav-link');
+        themeToggle.style.display = 'inline-flex';
+        themeToggle.style.alignItems = 'center';
+        themeToggle.style.justifyContent = 'center';
+        themeToggle.style.padding = '6px 8px';
+        themeToggle.style.marginRight = '6px';
+        themeToggle.style.background = 'transparent';
+        themeToggle.style.color = 'inherit';
+
+        // insert before first item so it's on the left of Home/Catalog/Cart
+        navList.insertBefore(li, navList.firstElementChild);
+        li.appendChild(themeToggle);
+    })();
+
+    // --- Currency switcher (uses FastForex convert endpoint) ---
+    const SUPPORTED_CURRENCIES = ['USD','KZT','RUB','EUR','GBP'];
+    const CURRENCY_STORE_KEY = 'timeless-currency';
+    const RATES_CACHE_KEY = 'timeless-rates'; // stores { rates: {...}, fetchedAt }
+
+    function getStoredCurrency() {
+        try { return localStorage.getItem(CURRENCY_STORE_KEY) || 'USD'; } catch (e) { return 'USD'; }
+    }
+    function setStoredCurrency(c) {
+        try { localStorage.setItem(CURRENCY_STORE_KEY, c); } catch (e) {}
+    }
+
+    async function fetchRatesIfNeeded() {
+        // return object mapping currency -> rate (USD -> currency)
+        try {
+            const cachedRaw = localStorage.getItem(RATES_CACHE_KEY);
+            if (cachedRaw) {
+                const cached = JSON.parse(cachedRaw);
+                if (cached && cached.fetchedAt && (Date.now() - cached.fetchedAt) < 12 * 60 * 60 * 1000 && cached.rates) {
+                    return cached.rates;
+                }
+            }
+
+            const toList = SUPPORTED_CURRENCIES.filter(c => c !== 'USD').join(',');
+            const url = `https://api.fastforex.io/convert?from=USD&to=${encodeURIComponent(toList)}&amount=1&api_key=${encodeURIComponent(CURRENCY_API_KEY)}`;
+            const res = await fetch(url, { method: 'GET' });
+            console.log(res);
+            if (!res.ok) throw new Error('Rate fetch failed');
+            const data = await res.json();
+            console.log(data);
+
+            // FastForex responses may nest rates in different props; handle common shapes
+            const possible = data.result || data.results || data.rates || data.conversion || data; // fallback
+            // normalize to an object mapping currency -> Number
+            const rates = {};
+            SUPPORTED_CURRENCIES.forEach(c => { rates[c] = c === 'USD' ? 1 : (Number(possible[c]) || null); });
+
+            // persist
+            try { localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ rates, fetchedAt: Date.now() })); } catch (e) {}
+            return rates;
+        } catch (e) {
+            console.warn('fetchRatesIfNeeded error', e);
+            // try to return cached even if stale
+            try {
+                const cachedRaw = localStorage.getItem(RATES_CACHE_KEY);
+                if (cachedRaw) return JSON.parse(cachedRaw).rates || { USD: 1 };
+            } catch (e) {}
+            return { USD: 1 };
+        }
+    }
+
+    function formatMoney(amount, currency) {
+        try {
+            // Intl will pick a sensible locale; fallback to simple formatting
+            return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(Number(amount));
+        } catch (e) {
+            return currency + ' ' + Number(amount).toFixed(2);
+        }
+    }
+
+    function parseUsdFromText(text) {
+        if (!text) return 0;
+        const m = String(text).replace(/[, ]/g, '').match(/([0-9]+(?:\.[0-9]+)?)/);
+        return m ? Number(m[1]) : 0;
+    }
+
+    async function applyCurrencyToPage(targetCurrency) {
+        const urlRUB = `https://api.fastforex.io/convert?from=USD&to=RUB&amount=1&api_key=${CURRENCY_API_KEY}`;
+        const urlGBP = `https://api.fastforex.io/convert?from=USD&to=GBP&amount=1&api_key=${CURRENCY_API_KEY}`;
+        const urlEUR = `https://api.fastforex.io/convert?from=USD&to=EUR&amount=1&api_key=${CURRENCY_API_KEY}`;
+        const urlKZT = `https://api.fastforex.io/convert?from=USD&to=KZT&amount=1&api_key=${CURRENCY_API_KEY}`;
+
+        // Fetch all exchange rates in parallel
+        const [resRUB, resGBP, resEUR, resKZT] = await Promise.all([
+            fetch(urlRUB),
+            fetch(urlGBP),
+            fetch(urlEUR),
+            fetch(urlKZT)
+        ]);
+
+        if (!resRUB.ok || !resGBP.ok || !resEUR.ok || !resKZT.ok) {
+            throw new Error('Rate fetch failed');
+        }
+
+        const [dataRUB, dataGBP, dataEUR, dataKZT] = await Promise.all([
+            resRUB.json(),
+            resGBP.json(),
+            resEUR.json(),
+            resKZT.json()
+        ]);
+
+        console.log('💱 Rates fetched:', dataRUB, dataGBP, dataEUR, dataKZT);
+
+        // Load original USD prices from localStorage
+        const originalPrices = JSON.parse(localStorage.getItem('originalPrices') || '[]');
+
+        $('.card-text.fw-bold.text-primary').each(function(index) {
+            const original = originalPrices[index];
+            if (!original) return;
+
+            let rate = 1;
+            let currency = 'USD';
+
+            if (targetCurrency === 'RUB') {
+                rate = dataRUB.result.RUB;
+                currency = 'RUB';
+            } else if (targetCurrency === 'GBP') {
+                rate = dataGBP.result.GBP;
+                currency = 'GBP';
+            } else if (targetCurrency === 'EUR') {
+                rate = dataEUR.result.EUR;
+                currency = 'EUR';
+            } else if (targetCurrency === 'KZT') {
+                rate = dataKZT.result.KZT;
+                currency = 'KZT';
+            }
+
+            // If targetCurrency = USD → restore original prices
+            if (currency === 'USD') {
+                $(this).text(original.text);
+                return;
+            }
+
+            const converted = original.value * rate;
+            $(this).text(formatMoney(converted, currency));
+        });
+    }
+
+
+
+    // create a compact currency button and insert to navbar next to theme button
+    (function createCurrencyButton() {
+        const current = getStoredCurrency();
+        const currencyBtn = document.createElement('button');
+        currencyBtn.className = 'btn nav-currency-btn nav-link';
+        currencyBtn.type = 'button';
+        currencyBtn.style.padding = '6px 8px';
+        currencyBtn.style.border = 'none';
+        currencyBtn.style.background = 'transparent';
+        currencyBtn.style.color = 'inherit';
+        currencyBtn.style.cursor = 'pointer';
+        currencyBtn.textContent = current;
+        currencyBtn.setAttribute('aria-label', 'Change currency');
+
+        // insert next to theme toggle if present in navbar
+        const navbarContainer = document.querySelector('.navbar .container-fluid');
+        if (!navbarContainer) return;
+        const navList = navbarContainer.querySelector('ul.navbar-nav');
+        if (!navList) return;
+
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+
+        // place after theme toggle li if exists (theme was prepended earlier)
+        const first = navList.firstElementChild;
+        if (first) navList.insertBefore(li, first.nextElementSibling); else navList.appendChild(li);
+        li.appendChild(currencyBtn);
+
+        // click cycles through supported currencies
+        currencyBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const cur = getStoredCurrency();
+            const idx = SUPPORTED_CURRENCIES.indexOf(cur);
+            const next = SUPPORTED_CURRENCIES[(idx + 1) % SUPPORTED_CURRENCIES.length];
+            setStoredCurrency(next);
+            currencyBtn.textContent = next;
+            try { playClickSound(); } catch (e) {}
+            await applyCurrencyToPage(next);
+            showToast(`Prices switched to ${next}`, 'info');
+        });
+
+        // initial apply on load
+        (async function initCurrency() {
+            const c = getStoredCurrency() || 'USD';
+            currencyBtn.textContent = c;
+            try { await applyCurrencyToPage(c); } catch (e) { console.warn(e); }
+        })();
+    })();
 
     // initialize theme: stored -> system preference -> default light
     (function initTheme() {
@@ -100,6 +317,56 @@ function playClickSound() {
         // prefer system preference
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         setTheme(prefersDark ? 'dark' : 'light');
+    })();
+
+    // Render auth status in navbar and provide logout action on non-index pages
+    (function renderNavbarAuth() {
+        const AUTH_CURRENT_KEY = 'timeless-current-user';
+        function getCurrentUser() { try { return localStorage.getItem(AUTH_CURRENT_KEY); } catch (e) { return null; } }
+
+        const user = getCurrentUser();
+        const navbarContainer = document.querySelector('.navbar .container-fluid');
+        if (!navbarContainer) return;
+
+        // ensure we modify the right UL
+        const navList = navbarContainer.querySelector('ul.navbar-nav');
+        if (!navList) return;
+
+        // remove existing auth node if present
+        const existing = document.getElementById('navAuth');
+        if (existing) existing.remove();
+
+        const li = document.createElement('li');
+        li.id = 'navAuth';
+        if (user) {
+            li.className = 'nav-item dropdown';
+            li.innerHTML = `
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ${user}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            `;
+        } else {
+            li.className = 'nav-item';
+            li.innerHTML = `<a class="nav-link" href="index.html">Login</a>`;
+        }
+
+        navList.appendChild(li);
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                try { localStorage.removeItem(AUTH_CURRENT_KEY); } catch (err) {}
+                playClickSound();
+                showToast('You have been logged out', 'info');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 700);
+            });
+        }
     })();
 
     const themeMessage = document.createElement("div");
@@ -313,31 +580,127 @@ function playClickSound() {
     }
 
 
-    const loginForm = document.querySelector(".login-form");
-    if (loginForm) {
-        loginForm.addEventListener("submit", (event) => {
-            event.preventDefault();
+    // --- Local-storage based auth (login & registration) ---
+    (function setupAuth() {
+        const AUTH_USERS_KEY = 'timeless-users';
+        const AUTH_CURRENT_KEY = 'timeless-current-user';
 
-            const loginInput = document.getElementById("login");
-            const passwordInput = document.getElementById("password");
+        function getUsers() {
+            try { return JSON.parse(localStorage.getItem(AUTH_USERS_KEY) || '{}'); } catch (e) { return {}; }
+        }
+        function saveUsers(u) {
+            try { localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(u)); } catch (e) {}
+        }
+        function setCurrentUser(username) {
+            try { localStorage.setItem(AUTH_CURRENT_KEY, username); } catch (e) {}
+        }
+        function getCurrentUser() {
+            try { return localStorage.getItem(AUTH_CURRENT_KEY); } catch (e) { return null; }
+        }
 
-            if (!loginInput.value.trim()) {
-                showToast("Please enter your login.", "error");
+        // Auto-redirect to catalog if already logged in and on index/root
+        const curUser = getCurrentUser();
+        const path = window.location.pathname;
+        if (curUser && (path.endsWith('index.html') || path === '/' || path === '')) {
+            window.location.href = 'catalog.html';
+            return;
+        }
+
+        const loginForm = document.querySelector('.login-form');
+        if (!loginForm) return;
+
+        const loginInput = document.getElementById('login');
+        const passwordInput = document.getElementById('password');
+        const confirmContainer = document.getElementById('confirmContainer');
+        const passwordConfirm = document.getElementById('passwordConfirm');
+        const submitBtn = document.getElementById('submitBtn');
+        const authToggle = document.getElementById('authToggle');
+
+        function switchToRegister() {
+            loginForm.setAttribute('data-mode','register');
+            submitBtn.textContent = 'Register';
+            confirmContainer.style.display = '';
+            authToggle.textContent = 'Already have an account? Login';
+        }
+        function switchToLogin() {
+            loginForm.setAttribute('data-mode','login');
+            submitBtn.textContent = 'Login';
+            confirmContainer.style.display = 'none';
+            authToggle.textContent = "Don't have an account? Register";
+        }
+
+        // initial state
+        switchToLogin();
+
+        authToggle.addEventListener('click', () => {
+            if (loginForm.getAttribute('data-mode') === 'login') switchToRegister(); else switchToLogin();
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = (loginInput.value || '').trim();
+            const password = (passwordInput.value || '');
+
+            if (!username) {
+                showToast('Please enter a username', 'error');
                 loginInput.focus();
                 return;
             }
-            
-            showToast("Login successful! Redirecting...", "success");
-            const $btn = $('.login-form button[type="submit"]');
-            const originalBtnText = $btn.html();
-            $btn.html('<span class="spinner"></span> Please wait...');
-            $btn.prop('disabled', true);
-            
-            setTimeout(() => {
-                window.location.href = "catalog.html";
-            }, 1500);
+
+            const mode = loginForm.getAttribute('data-mode') || 'login';
+            const users = getUsers();
+
+            if (mode === 'register') {
+                const confirm = (passwordConfirm?.value || '');
+                if (!password || password.length < 4) {
+                    showToast('Password must be at least 4 characters', 'error');
+                    passwordInput.focus();
+                    return;
+                }
+                if (password !== confirm) {
+                    showToast('Passwords do not match', 'error');
+                    passwordConfirm.focus();
+                    return;
+                }
+                if (users[username]) {
+                    showToast('User already exists. Please login.', 'error');
+                    switchToLogin();
+                    return;
+                }
+
+                // register
+                users[username] = { password: password, createdAt: Date.now() };
+                saveUsers(users);
+                setCurrentUser(username);
+                playSuccessSound();
+                showToast('Registration successful! Redirecting...', 'success');
+                submitBtn.disabled = true;
+                setTimeout(() => window.location.href = 'catalog.html', 900);
+                return;
+            }
+
+            // login
+            if (!users[username]) {
+                showToast('User not found. Please register first.', 'error');
+                switchToRegister();
+                return;
+            }
+
+            if (users[username].password !== password) {
+                playErrorSound();
+                showToast('Incorrect password', 'error');
+                passwordInput.focus();
+                return;
+            }
+
+            // success
+            setCurrentUser(username);
+            playSuccessSound();
+            showToast('Login successful! Redirecting...', 'success');
+            submitBtn.disabled = true;
+            setTimeout(() => window.location.href = 'catalog.html', 900);
         });
-    }
+    })();
 
     function showValidationMessage(message, type) {
         const existingMsg = document.querySelector(".validation-message");
@@ -433,6 +796,135 @@ function playClickSound() {
         popup.style.display = "none";
         emailInput.value = "";
     });
+
+    // --- Cart page: make + and - buttons functional, update per-item subtotal and total ---
+    (function setupCartButtons() {
+        if (!window.location.href.includes('cart.html')) return;
+
+        function parsePriceText(node) {
+            if (!node) return 0;
+            const text = (node.textContent || '').replace(/[, ]/g, '');
+            const m = text.match(/\$?(\d+(?:\.\d+)?)/);
+            return m ? Number(m[1]) : 0;
+        }
+
+        function formatCurrency(n) {
+            if (Number.isInteger(n)) return '$' + n;
+            return '$' + n.toFixed(2);
+        }
+
+        const cards = Array.from(document.querySelectorAll('main .card'));
+        if (!cards.length) return;
+
+        cards.forEach(card => {
+            const btnGroup = card.querySelector('.btn-group');
+            if (!btnGroup) return;
+
+            const buttons = btnGroup.querySelectorAll('button');
+            if (buttons.length < 2) return;
+
+            const decBtn = buttons[0];
+            const incBtn = buttons[buttons.length - 1];
+            const qtySpan = btnGroup.querySelector('span') || document.createElement('span');
+
+            const priceEl = card.querySelector('.card-text.text-primary.fw-bold') || card.querySelector('.card-text');
+            const unitPrice = parsePriceText(priceEl) || Number(card.dataset.price || 0);
+            // store unit price to dataset so we can always compute subtotal
+            card.dataset.unitPrice = String(unitPrice);
+
+            // ensure qty is numeric
+            let qty = Number(qtySpan.textContent) || 1;
+            qty = Math.max(1, Math.min(99, qty));
+            qtySpan.textContent = qty;
+
+            function updateDisplay() {
+                const subtotal = unitPrice * qty;
+                priceEl.textContent = formatCurrency(subtotal);
+                updateCartTotal();
+            }
+
+            decBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (qty <= 1) return;
+                qty--;
+                qtySpan.textContent = qty;
+                playClickSound();
+                updateDisplay();
+            });
+
+            incBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (qty >= 99) return;
+                qty++;
+                qtySpan.textContent = qty;
+                playClickSound();
+                updateDisplay();
+            });
+
+            // initialize per-item display to show subtotal
+            updateDisplay();
+        });
+
+        function updateCartTotal() {
+            const cardsNow = Array.from(document.querySelectorAll('main .card'));
+            let total = 0;
+            const items = [];
+
+            cardsNow.forEach(c => {
+                const unit = Number(c.dataset.unitPrice || 0);
+                const q = Number(c.querySelector('.btn-group span')?.textContent || 1);
+                const title = c.querySelector('.card-title')?.textContent?.trim() || '';
+                const img = c.querySelector('img')?.getAttribute('src') || c.querySelector('img')?.getAttribute('data-src') || '';
+                const subtotal = unit * q;
+                total += subtotal;
+                items.push({ title, price: unit, qty: q, img, subtotal });
+            });
+
+            const placeBtn = document.querySelector('a.btn-success');
+            if (placeBtn) {
+                placeBtn.textContent = `Place Order (${formatCurrency(total)})`;
+            }
+
+            // persist cart for order page
+            saveCartObject({ total, items, updatedAt: Date.now() });
+        }
+
+        // initial total
+        updateCartTotal();
+    })();
+
+    // Populate order page from localStorage cart
+    (function populateOrderPage() {
+        if (!window.location.href.includes('order.html')) return;
+
+        const cart = loadCartObject() || { total: 0, items: [] };
+
+        const orderTotalEl = document.getElementById('orderTotal');
+        if (orderTotalEl) orderTotalEl.textContent = formatCurrency(cart.total || 0);
+
+        const itemsContainer = document.getElementById('orderItems') || document.querySelector('.row.g-4.mb-4');
+        if (!itemsContainer) return;
+
+        itemsContainer.innerHTML = '';
+
+        (cart.items || []).forEach(it => {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6 col-sm-12';
+            col.innerHTML = `
+                <div class="card">
+                    <img src="${it.img || 'imgs/placeholder.jpg'}" class="card-img-top" alt="${it.title}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">${it.title}</h5>
+                        <p class="card-text text-primary fw-bold">${formatCurrency(it.price)} × ${it.qty} = ${formatCurrency(it.subtotal)}</p>
+                    </div>
+                </div>
+            `;
+            itemsContainer.appendChild(col);
+        });
+
+        // Optional: clear cart after rendering order (commented out)
+        // localStorage.removeItem('timeless-cart');
+    })();
 
     if (!window.location.href.includes("catalog.html")) return;
     
@@ -906,29 +1398,33 @@ if (button) {
 
   $(document).ready(function () {
     setupCounters();
+
+    const originalPrices = [];
+
+    $('.card-text.fw-bold.text-primary').each(function() {
+        const priceText = $(this).text().trim();
+
+        // Only save prices that contain $
+        if (priceText.includes("$")) {
+            const numericPrice = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+            originalPrices.push({
+                text: priceText,
+                value: numericPrice
+            });
+        }
+    });
+
+    // Save to localStorage once
+    if (originalPrices.length > 0) {
+        localStorage.setItem('originalPrices', JSON.stringify(originalPrices));
+        console.log('✅ Original USD prices saved to localStorage:', originalPrices);
+    }
+
   });
 
   window.TimelessInitCounters = setupCounters;
 
-  $(document).ready(function () {
-    $('#loginForm').submit(function (event) {
-        event.preventDefault();
-        const $btn = $('#submitBtn');
-        const originalText = $btn.text();
-        
-        $btn
-        .prop('disabled', true)
-        .html(`<div class="spinner"></div> Please wait...`);
-
-
-        setTimeout(() => {
-            $btn
-            .prop('disabled', false)
-            .text(originalText);
-            alert("Login successful!"); 
-        }, 2000);
-  });
-});
+    // Legacy jQuery login handler removed --- using local-storage auth instead
 
 $(document).ready(function () {
   $(".copy-btn").on("click", function () {
